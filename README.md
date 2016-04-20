@@ -76,14 +76,8 @@ Schema.group = new SimpleSchema({
   visibility: {
     type: String,
     allowedValues: [
-      // "public" visibility is for fully-open, transparent groups.
       'public',
-      // The idea of the community view is that the community information
-      // is visible to the public but the individual information such as
-      // who is in the community or who is attending an event is not.
       'community',
-      // All information other than the group owner, name, description, and photo
-      // is invisible to anyone who is not a member of the group's community.
       'private',
     ],
     defaultValue: 'private',
@@ -106,7 +100,8 @@ const GROUP_ID_ONLY = new SimpleSchema({
 export const insert = new ValidatedMethod({
   name: 'groups.insert',
   mixins: [simpleSchemaMixin],
-  // Note the use of pick to cherry pick elements from an existing schema. Defaults will be implemented for both description and visibility per the schema.
+  // Note the use of pick to cherry pick elements from an existing schema. Defaults will
+  // be implemented for both description and visibility per the schema.
   schema: Groups.simpleSchema().pick([
     'name',
     'description',
@@ -128,7 +123,8 @@ export const archive = new ValidatedMethod({
 export const rename = new ValidatedMethod({
   name: 'groups.rename',
   mixins: [simpleSchemaMixin],
-  // Note the use of two SimpleSchema objects in an array. The SimpleSchema constructor combines them for us.
+  // Note the use of two SimpleSchema objects in an array. 
+  // The SimpleSchema constructor combines them for us.
   schema: [GROUP_ID_ONLY, Groups.simpleSchema().pick(['name'])],
   run({ groupId, name }) {
     ...
