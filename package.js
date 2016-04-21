@@ -8,8 +8,8 @@ Package.describe({
 });
 
 Package.onUse(function (api) {
-  api.versionsFrom('1.3.2.2');
-  api.use(['ecmascript', 'aldeed:simple-schema@1.4.0']);
+  api.versionsFrom('1.2');
+  api.use(['ecmascript', 'aldeed:simple-schema@1.5.2']);
   api.addFiles('simple-schema-mixin.js');
   api.export('simpleSchemaMixin');
 });
