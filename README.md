@@ -52,10 +52,14 @@ effect of enabling defaultValue specifications in the schema to be processed as 
 using the aldeed:collections2 package while not filtering out any parameters not specified in the schema. In other words, you may use defaultValue to make ValidatedMethod parameters optional to the caller and still get error messages if you have a typo in a parameter key name or add an extra one.
 If you don't like this niceness, just specify { clean : false } and you'll return to validator's default behavior.
 
-If the mixin is included but the schema is missing, ValidatedMethod will proceed as if
-SimpleSchemaMixin had never been added.
-
-If both the "schema" and "validate" options are provided, a Meteor.Error will be thrown.
+If the mixin is included
+- but both the schema and validate options are missing or set to null, a defaultValue of {} will
+be used for the schema having the effect of enforcing that the method caller provide no
+parameters.
+- but the schema option is missing and a non-null validate option is provided, ValidatedMethod will
+proceed as if SimpleSchemaMixin had never been added.
+- but non-null values are specified for both the schema option and the validate option, a
+a Meteor.Error will be thrown.
 
 ### Examples
 
@@ -123,7 +127,7 @@ export const archive = new ValidatedMethod({
 export const rename = new ValidatedMethod({
   name: 'groups.rename',
   mixins: [simpleSchemaMixin],
-  // Note the use of two SimpleSchema objects in an array. 
+  // Note the use of two SimpleSchema objects in an array.
   // The SimpleSchema constructor combines them for us.
   schema: [GROUP_ID_ONLY, Groups.simpleSchema().pick(['name'])],
   run({ groupId, name }) {

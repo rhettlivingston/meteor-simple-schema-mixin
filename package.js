@@ -1,7 +1,7 @@
 /* global Package */
 Package.describe({
   name: 'rlivingston:simple-schema-mixin',
-  version: '0.0.2',
+  version: '0.0.3',
   summary: 'A simple schema mixin to use with mdg:validated-method package',
   git: 'https://github.com/rhettlivingston/meteor-simple-schema-mixin.git',
   documentation: 'README.md',
