@@ -42,3 +42,19 @@ simpleSchemaMixin = function SimpleSchemaMixinFunc(methodOptions) {
   newOptions.validate = simpleSchema.validator(newOptions.schemaValidatorOptions);
   return newOptions;
 };
+
+/* global SimplyValidatedMethod:true */
+/* global ValidatedMethod */
+/* global check */
+/* global _ */
+SimplyValidatedMethod = class SimplyValidatedMethod extends ValidatedMethod {
+  constructor(options) {
+    // eslint-disable-next-line no-param-reassign
+    options.mixins = options.mixins || [];
+    check(options.mixins, [Function]);
+    // eslint-disable-next-line no-param-reassign
+    options.mixins = _.union(options.mixins, [simpleSchemaMixin]);
+
+    super(options);
+  }
+};

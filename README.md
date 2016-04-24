@@ -55,7 +55,9 @@ If you don't like this niceness, just specify { clean : false } and you'll retur
 If the mixin is included
 - but both the schema and validate options are missing or set to null, a defaultValue of {} will
 be used for the schema having the effect of enforcing that the method caller provide no
-parameters.
+parameters. **NOTE: Due to SimpleSchema's requirement that a document always be provided to
+validate, calling run without an empty document argument will cause an error. i.e. use run({}), not
+run()**
 - but the schema option is missing and a non-null validate option is provided, ValidatedMethod will
 proceed as if SimpleSchemaMixin had never been added.
 - but non-null values are specified for both the schema option and the validate option, a

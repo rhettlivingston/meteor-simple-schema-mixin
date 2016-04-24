@@ -1,22 +1,34 @@
 /* global Package */
 Package.describe({
   name: 'rlivingston:simple-schema-mixin',
-  version: '0.0.3',
-  summary: 'A simple schema mixin to use with mdg:validated-method package',
+  version: '0.0.4',
+  summary: 'A ValidatedMethod mixin that eases use of aldeed:SimpleSchema with mdg:validated-method for validation',
   git: 'https://github.com/rhettlivingston/meteor-simple-schema-mixin.git',
   documentation: 'README.md',
 });
 
 Package.onUse(function (api) {
   api.versionsFrom('1.2');
-  api.use(['ecmascript', 'aldeed:simple-schema@1.5.2']);
+  api.use([
+    'ecmascript',
+    // We need a min of 1.5.0 for "clean" to work. 1.5.2 also adds better err messages. Go for it.
+    'aldeed:simple-schema@1.5.2',
+    'mdg:validated-method',
+    'check',
+    'underscore',
+  ]);
   api.addFiles('simple-schema-mixin.js');
   api.export('simpleSchemaMixin');
+//  api.export('SimplyValidatedMethod');
 });
 
 Package.onTest(function (api) {
-  api.use('ecmascript');
-  api.use('tinytest');
-  api.use('rlivingston:simple-schema-mixin');
+  api.use([
+    'ecmascript',
+    'rlivingston:simple-schema-mixin',
+    'aldeed:simple-schema@1.5.2',
+    'mdg:validated-method@1.1.0',
+    'practicalmeteor:chai',
+  ]);
   api.addFiles('simple-schema-mixin-tests.js');
 });

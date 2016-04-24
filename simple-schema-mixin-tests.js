@@ -1,11 +1,195 @@
-// Import Tinytest from the tinytest Meteor package.
-import { Tinytest } from 'meteor/tinytest';
+/* eslint-env mocha */
+/* eslint-disable func-names, prefer-arrow-callback */
 
-// Import and rename a variable exported by simple-schema-mixin.js.
-import { simpleSchemaMixin } from 'meteor/rlivingston:simple-schema-mixin';
+/* global Meteor */
+/* global ValidatedMethod */
+/* global assert */
+/* global simpleSchemaMixin */
 
-// Write your tests here!
-// Here is an example.
-Tinytest.add('simple-schema-mixin - example', function (test) {
-  test.equal(simpleSchemaMixin, 'simple-schema-mixin');
+// import { SimpleSchema } from 'meteor/aldeed:simple-schema';
+
+const plainMethod = new ValidatedMethod({
+  name: 'plainMethod',
+  mixins: [simpleSchemaMixin],
+  schema: {},
+  run() {
+    return 'result';
+  },
+});
+
+const noArgsMethod = new ValidatedMethod({
+  name: 'noArgsMethod',
+  mixins: [simpleSchemaMixin],
+  schema: null,
+  run() {
+    return 'result';
+  },
+});
+
+const methodWithArgs = new ValidatedMethod({
+  name: 'methodWithArgs',
+  mixins: [simpleSchemaMixin],
+  schema: {
+    int: { type: Number },
+    string: { type: String },
+  },
+  run() {
+    return 'result';
+  },
+});
+
+const methodThrowsImmediately = new ValidatedMethod({
+  name: 'methodThrowsImmediately',
+  mixins: [simpleSchemaMixin],
+  schema: null,
+  run() {
+    throw new Meteor.Error('error');
+  },
+});
+
+const methodReturnsName = new ValidatedMethod({
+  name: 'methodReturnsName',
+  validate: null,
+  run() {
+    return this.name;
+  },
+});
+
+const methodWithSchemaMixin = new ValidatedMethod({
+  name: 'methodWithSchemaMixin',
+  mixins: [simpleSchemaMixin],
+  schema: {
+    int: { type: Number },
+    string: { type: String },
+  },
+  run() {
+    return 'result';
+  },
+});
+
+let resultReceived = false;
+const methodWithApplyOptions = new ValidatedMethod({
+  name: 'methodWithApplyOptions',
+  mixins: [simpleSchemaMixin],
+  schema: {},
+  applyOptions: {
+    onResultReceived: () => {
+      resultReceived = true;
+    },
+  },
+  run() {
+    return 'result';
+  },
+});
+
+describe('mdg:method', function () {
+  it('defines a method that can be called', function (done) {
+    plainMethod.call({}, (error, result) => {
+      assert.equal(result, 'result');
+
+      Meteor.call(plainMethod.name, {}, (error2, result2) => {
+        assert.equal(result2, 'result');
+        done();
+      });
+    });
+  });
+
+  it('allows methods that take no arguments', function (done) {
+    noArgsMethod.call({}, (error, result) => {
+      assert.equal(result, 'result');
+
+      // This is what I'd like, but it doesn't work because of
+      // SimpleSchema not accepting "undefined" documents.
+      // Meteor.call(noArgsMethod.name, (error, result) => {
+      Meteor.call(noArgsMethod.name, {}, (error2, result2) => {
+        assert.equal(result2, 'result');
+        done();
+      });
+    });
+  });
+
+
+  [methodWithArgs, methodWithSchemaMixin].forEach((method) => {
+    it(`checks schema ${method.name}`, function (done) {
+      method.call({}, (error) => {
+        // 2 invalid fields
+        assert.equal(error.errors.length, 2);
+
+        method.call({
+          int: 5,
+          string: 'what',
+        }, (error2, result) => {
+          // All good!
+          assert.equal(result, 'result');
+
+          done();
+        });
+      });
+    });
+  });
+
+  it('throws error if no callback passed', function (done) {
+    methodThrowsImmediately.call({}, (err) => {
+      // If you pass a callback, you get the error in the callback
+      assert.ok(err);
+
+      // If no callback, the error is thrown
+      assert.throws(() => {
+        methodThrowsImmediately.call({});
+      }, /error/);
+
+      done();
+    });
+  });
+
+  it('throws error if a mixin does not return the options object', function () {
+    assert.throws(() => {
+      new ValidatedMethod({ // eslint-disable-line no-new
+        name: 'methodWithFaultySchemaMixin',
+        mixins: [function nonReturningFunction() {}],
+        schema: null,
+        run() {
+          return 'result';
+        },
+      });
+    // eslint-disable-next-line max-len
+    }, /Error in methodWithFaultySchemaMixin method: The function 'nonReturningFunction' didn't return the options object/);
+
+    assert.throws(() => {
+      new ValidatedMethod({ // eslint-disable-line no-new
+        name: 'methodWithFaultySchemaMixin',
+        mixins: [function (args) { return args; }, function () {}],
+        schema: null,
+        run() {
+          return 'result';
+        },
+      });
+    // eslint-disable-next-line max-len
+    }, /Error in methodWithFaultySchemaMixin method: One of the mixins didn't return the options object/);
+  });
+
+  it('has access to the name on this.name', function (done) {
+    const ret = methodReturnsName._execute();
+    assert.equal(ret, 'methodReturnsName');
+
+    methodReturnsName.call({}, (err, res) => {
+      // The Method knows its own name
+      assert.equal(res, 'methodReturnsName');
+
+      done();
+    });
+  });
+
+  // the only apply option that I can think of to test is client side only
+  if (!Meteor.isServer) {
+    it('can accept Meteor.apply options', function (done) {
+      resultReceived = false;
+      methodWithApplyOptions.call({}, () => {
+        // The Method knows its own name
+        assert.equal(resultReceived, true);
+
+        done();
+      });
+    });
+  }
 });
