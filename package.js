@@ -13,7 +13,7 @@ Package.onUse(function (api) {
     'ecmascript',
     // We need a min of 1.5.0 for "clean" to work. 1.5.2 also adds better err messages. Go for it.
     'aldeed:simple-schema@1.5.2',
-    'mdg:validated-method',
+    'mdg:validated-method@1.1.0',
     'check',
     'underscore',
   ]);
