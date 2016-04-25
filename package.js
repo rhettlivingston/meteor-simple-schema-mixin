@@ -2,7 +2,7 @@
 /* eslint-disable max-len,func-names,prefer-arrow-callback */
 Package.describe({
   name: 'rlivingston:simple-schema-mixin',
-  version: '0.0.4',
+  version: '0.0.5',
   summary: 'A ValidatedMethod mixin that eases use of aldeed SimpleSchema with mdg validated-method',
   git: 'https://github.com/rhettlivingston/meteor-simple-schema-mixin.git',
   documentation: 'README.md',
