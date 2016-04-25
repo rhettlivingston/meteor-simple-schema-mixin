@@ -8,8 +8,9 @@ simpleSchemaMixin = function SimpleSchemaMixinFunc(methodOptions) {
   // all the time, this could happen semi-"intentionally". There may be times they
   // just don't want to use a schema and have specified a "validate" option. So
   // returning the unchanged options instead of an error seems proper.
-  if ((!methodOptions.schema || methodOptions.schema === null) &&
-      methodOptions.validate && methodOptions.validate !== null) {
+  if ((!methodOptions.schema && methodOptions.validate)
+   || (methodOptions.schema && methodOptions.schema === null
+       && methodOptions.validate && methodOptions.validate !== null)) {
     return methodOptions;
   }
 
@@ -19,6 +20,10 @@ simpleSchemaMixin = function SimpleSchemaMixinFunc(methodOptions) {
       'simpleSchemaMixin.options',
       '"schema" and "validate" options cannot be used together');
   }
+
+  // Note that setting them both null will make it through, defaulting to the
+  // schema = null behavior (enforce no args) instead of the validate = null
+  // behavior (do no validation).
 
   const newOptions = methodOptions;
   newOptions.schemaValidatorOptions =

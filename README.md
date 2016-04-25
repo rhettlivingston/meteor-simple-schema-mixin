@@ -53,13 +53,11 @@ using the aldeed:collections2 package while not filtering out any parameters not
 If you don't like this niceness, just specify { clean : false } and you'll return to validator's default behavior.
 
 If the mixin is included
-- but both the schema and validate options are missing or set to null, a defaultValue of {} will
-be used for the schema having the effect of enforcing that the method caller provide no
-parameters. **NOTE: Due to SimpleSchema's requirement that a document always be provided to
-validate, calling run without an empty document argument will cause an error. i.e. use run({}), not
-run()**
-- but the schema option is missing and a non-null validate option is provided, ValidatedMethod will
-proceed as if SimpleSchemaMixin had never been added.
+- but both the schema and validate options are missing, both are present and set to null, or only
+schema is present and set to null, a defaultValue of {} will be used for the schema having the
+effect of enforcing that the method caller provide no parameters. **NOTE: Due to SimpleSchema's requirement that a document always be provided to validate, calling run without an empty document argument will cause an error. i.e. use run({}), not run()**
+- but the schema option is missing or null and a non-null validate option is provided,
+ValidatedMethod will proceed as if SimpleSchemaMixin had never been added.
 - but non-null values are specified for both the schema option and the validate option, a
 a Meteor.Error will be thrown.
 
@@ -67,7 +65,7 @@ a Meteor.Error will be thrown.
 
 ```js
 
-// elsewhere in my app
+// elsewhere in app
 const Schema = {};
 
 Schema.group = new SimpleSchema({

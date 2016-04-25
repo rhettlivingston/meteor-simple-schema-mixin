@@ -38,6 +38,18 @@ const methodWithArgs = new ValidatedMethod({
   },
 });
 
+const methodWithSchemaMixin = new ValidatedMethod({
+  name: 'methodWithSchemaMixin',
+  mixins: [simpleSchemaMixin],
+  schema: {
+    int: { type: Number },
+    string: { type: String },
+  },
+  run() {
+    return 'result';
+  },
+});
+
 const methodThrowsImmediately = new ValidatedMethod({
   name: 'methodThrowsImmediately',
   mixins: [simpleSchemaMixin],
@@ -52,18 +64,6 @@ const methodReturnsName = new ValidatedMethod({
   validate: null,
   run() {
     return this.name;
-  },
-});
-
-const methodWithSchemaMixin = new ValidatedMethod({
-  name: 'methodWithSchemaMixin',
-  mixins: [simpleSchemaMixin],
-  schema: {
-    int: { type: Number },
-    string: { type: String },
-  },
-  run() {
-    return 'result';
   },
 });
 
@@ -82,7 +82,7 @@ const methodWithApplyOptions = new ValidatedMethod({
   },
 });
 
-describe('mdg:method', function () {
+describe('basic mdg:validated-method tests still work', function () {
   it('defines a method that can be called', function (done) {
     plainMethod.call({}, (error, result) => {
       assert.equal(result, 'result');
@@ -95,6 +95,9 @@ describe('mdg:method', function () {
   });
 
   it('allows methods that take no arguments', function (done) {
+    // This is what I'd like, but it doesn't work because of
+    // SimpleSchema not accepting "undefined" documents.
+    // noArgsMethod.call((error, result) => {
     noArgsMethod.call({}, (error, result) => {
       assert.equal(result, 'result');
 
@@ -107,7 +110,6 @@ describe('mdg:method', function () {
       });
     });
   });
-
 
   [methodWithArgs, methodWithSchemaMixin].forEach((method) => {
     it(`checks schema ${method.name}`, function (done) {
@@ -183,7 +185,6 @@ describe('mdg:method', function () {
   // the only apply option that I can think of to test is client side only
   if (!Meteor.isServer) {
     it('can accept Meteor.apply options', function (done) {
-      resultReceived = false;
       methodWithApplyOptions.call({}, () => {
         // The Method knows its own name
         assert.equal(resultReceived, true);
@@ -192,4 +193,147 @@ describe('mdg:method', function () {
       });
     });
   }
+});
+
+const methodUsingDefaultValidate = new ValidatedMethod({
+  name: 'methodUsingDefaultValidate',
+  mixins: [simpleSchemaMixin],
+  validate: () => {},
+  run() {
+    return 'result';
+  },
+});
+
+const methodUsingNullValidate = new ValidatedMethod({
+  name: 'methodUsingNullValidate',
+  mixins: [simpleSchemaMixin],
+  validate: null,
+  run() {
+    return 'result';
+  },
+});
+
+const methodUsingDefaultValidateAndNullSchema = new ValidatedMethod({
+  name: 'methodUsingDefaultValidateAndNullSchema',
+  mixins: [simpleSchemaMixin],
+  schema: null,
+  validate: () => {},
+  run() {
+    return 'result';
+  },
+});
+
+const methodUsingNullValidateAndNullSchema = new ValidatedMethod({
+  name: 'methodUsingNullValidateAndNullSchema',
+  mixins: [simpleSchemaMixin],
+  schema: null,
+  validate: null,
+  run() {
+    return 'result';
+  },
+});
+
+const methodUsingNullValidateAndDefaultSchema = new ValidatedMethod({
+  name: 'methodUsingNullValidateAndDefaultSchema',
+  mixins: [simpleSchemaMixin],
+  schema: {},
+  validate: null,
+  run() {
+    return 'result';
+  },
+});
+
+const methodWithNoSchemaOrValidate = new ValidatedMethod({
+  name: 'methodWithNoSchemaOrValidate',
+  mixins: [simpleSchemaMixin],
+  run() {
+    return 'result';
+  },
+});
+
+describe('rlivingston:simple-schema-mixin', function () {
+  it('allows validate in lieu of schema - only validate present', function (done) {
+    // Note this is taking advantage of the fact that SimpleSchema will throw an
+    // exception if no object is supplied to validate to verify that SimpleSchema
+    // has been taken out of the picture. i.e. we're using call() instead of
+    // call({}). If either ValidateMethod or SimpleSchema fixes this issue, the
+    // test will still work but not really be testing anything. i.e. we might
+    // still be acting as though schema: null or schema: {} were provided.
+    methodUsingDefaultValidate.call((error, result) => {
+      assert.equal(result, 'result');
+      done();
+    });
+  });
+
+  it('allows validate in lieu of schema - only null validate present', function (done) {
+    // Note this is taking advantage of the fact that SimpleSchema will throw an
+    // exception if no object is supplied to validate to verify that SimpleSchema
+    // has been taken out of the picture. i.e. we're using call() instead of
+    // call({}). If either ValidateMethod or SimpleSchema fixes this issue, the
+    // test will still work but not really be testing anything. i.e. we might
+    // still be acting as though schema: null or schema: {} were provided.
+    methodUsingNullValidate.call((error, result) => {
+      assert.equal(result, 'result');
+      done();
+    });
+  });
+
+  it('allows validate in lieu of schema - validate present with null schema'
+  , function (done) {
+    // Note this is taking advantage of the fact that SimpleSchema will throw an
+    // exception if no object is supplied to validate to verify that SimpleSchema
+    // has been taken out of the picture. i.e. we're using call() instead of
+    // call({}). If either ValidateMethod or SimpleSchema fixes this issue, the
+    // test will still work but not really be testing anything. i.e. we might
+    // still be acting as though schema: null or schema: {} were provided.
+    methodUsingDefaultValidateAndNullSchema.call((error, result) => {
+      assert.equal(result, 'result');
+      done();
+    });
+  });
+
+  it('defaults to {} if no schema or validate supplied', function (done) {
+    methodWithNoSchemaOrValidate.call({ unexpectedArg: 'test' }, (error) => {
+      // If ValidateMethod handled it, its default stub does no validation. Thus
+      // there will be no validation-error due to the unexpectedArg. Therefore if we get a
+      // validation-error, all is good.
+      assert.equal(error.error, 'validation-error');
+      done();
+    });
+  });
+
+  it('defaults to {} if null schema and null validate supplied', function (done) {
+    methodUsingNullValidateAndNullSchema.call({ unexpectedArg: 'test' }, (error) => {
+      // If ValidateMethod handled it, its default stub does no validation. Thus
+      // there will be no validation-error due to the unexpectedArg. Therefore if we get a
+      // validation-error, all is good.
+      assert.equal(error.error, 'validation-error');
+      done();
+    });
+  });
+
+  it('uses schema if schema and null validate supplied', function (done) {
+    methodUsingNullValidateAndDefaultSchema.call({ unexpectedArg: 'test' }, (error) => {
+      // If ValidateMethod handled it, its default stub does no validation. Thus
+      // there will be no validation-error due to the unexpectedArg. Therefore if we get a
+      // validation-error, all is good.
+      assert.equal(error.error, 'validation-error');
+      done();
+    });
+  });
+
+  it('throws error if both schema and validate supplied', function () {
+    assert.throws(() => {
+      new ValidatedMethod({ // eslint-disable-line no-new
+        name: 'methodWithSchemaAndValidate',
+        mixins: [simpleSchemaMixin],
+        schema: {},
+        validate: () => {},
+        run() {
+          return 'result';
+        },
+      });
+    // eslint-disable-next-line max-len
+    }, /"schema" and "validate" options cannot be used together/);
+  });
 });
