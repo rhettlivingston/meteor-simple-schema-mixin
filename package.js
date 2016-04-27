@@ -2,7 +2,7 @@
 /* eslint-disable max-len,func-names,prefer-arrow-callback */
 Package.describe({
   name: 'rlivingston:simple-schema-mixin',
-  version: '0.0.5',
+  version: '0.0.6',
   summary: 'A ValidatedMethod mixin that eases use of aldeed SimpleSchema with mdg validated-method',
   git: 'https://github.com/rhettlivingston/meteor-simple-schema-mixin.git',
   documentation: 'README.md',
@@ -20,7 +20,6 @@ Package.onUse(function (api) {
   ]);
   api.addFiles('simple-schema-mixin.js');
   api.export('simpleSchemaMixin');
-//  api.export('SimplyValidatedMethod');
 });
 
 Package.onTest(function (api) {

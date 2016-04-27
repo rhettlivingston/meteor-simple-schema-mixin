@@ -46,11 +46,14 @@ of this interface makes it very easy to compose a schema option that combines pa
 from an existing schema with others specific to the ValidatedMethod. See the examples below to
 better understand what can be accomplished.
 
-The schemaValidatorOptions option may be used to change the options being sent to the SimpleSchema
-validator function. It is currently defaulted to "{ clean: true, filter: false }". This has the
+The schemaValidatorOptions option may be used to replace the options being sent by default to the SimpleSchema validator function. The default is "{ clean: true, filter: false }". This has the
 effect of enabling defaultValue specifications in the schema to be processed as they are when
 using the aldeed:collections2 package while not filtering out any parameters not specified in the schema. In other words, you may use defaultValue to make ValidatedMethod parameters optional to the caller and still get error messages if you have a typo in a parameter key name or add an extra one.
 If you don't like this niceness, just specify { clean : false } and you'll return to validator's default behavior.
+
+Note that because your schemaValidatorOptions will **replace** the default, they must specify
+'clean: true' if you're doing anything other than turning off clean. i.e. { filter: true } will not have the desired effect because SimpleSchema will default to not running clean and the filter stage
+is within the clean stage. To turn on filtering, you would need to specify { clean: true, filter: true } or just { clean: true } since filter: true is SimpleSchema's default when cleaning.
 
 If the mixin is included
 - but both the schema and validate options are missing, both are present and set to null, or only
@@ -59,7 +62,7 @@ effect of enforcing that the method caller provide no parameters. **NOTE: Due to
 - but the schema option is missing or null and a non-null validate option is provided,
 ValidatedMethod will proceed as if SimpleSchemaMixin had never been added.
 - but non-null values are specified for both the schema option and the validate option, a
-a Meteor.Error will be thrown.
+Meteor.Error will be thrown.
 
 ### Examples
 
@@ -156,3 +159,7 @@ export const setIsAdmin = new ValidatedMethod({
 ## License
 
 MIT
+
+## Testing
+
+Test per meteor's guide using `meteor test-packages ./ --driver-package practicalmeteor:mocha`.

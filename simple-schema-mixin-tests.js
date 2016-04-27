@@ -95,16 +95,10 @@ describe('basic mdg:validated-method tests still work', function () {
   });
 
   it('allows methods that take no arguments', function (done) {
-    // This is what I'd like, but it doesn't work because of
-    // SimpleSchema not accepting "undefined" documents.
-    // noArgsMethod.call((error, result) => {
-    noArgsMethod.call({}, (error, result) => {
+    noArgsMethod.call((error, result) => {
       assert.equal(result, 'result');
 
-      // This is what I'd like, but it doesn't work because of
-      // SimpleSchema not accepting "undefined" documents.
-      // Meteor.call(noArgsMethod.name, (error, result) => {
-      Meteor.call(noArgsMethod.name, {}, (error2, result2) => {
+      Meteor.call(noArgsMethod.name, (error2, result2) => {
         assert.equal(result2, 'result');
         done();
       });
@@ -251,28 +245,27 @@ const methodWithNoSchemaOrValidate = new ValidatedMethod({
   },
 });
 
+const methodWithSchemaAndFilterTrue = new ValidatedMethod({
+  name: 'methodWithSchemaAndFilterTrue',
+  mixins: [simpleSchemaMixin],
+  schemaValidatorOptions: { clean: true, filter: true },
+  run() {
+    return 'result';
+  },
+});
+
 describe('rlivingston:simple-schema-mixin', function () {
   it('allows validate in lieu of schema - only validate present', function (done) {
-    // Note this is taking advantage of the fact that SimpleSchema will throw an
-    // exception if no object is supplied to validate to verify that SimpleSchema
-    // has been taken out of the picture. i.e. we're using call() instead of
-    // call({}). If either ValidateMethod or SimpleSchema fixes this issue, the
-    // test will still work but not really be testing anything. i.e. we might
-    // still be acting as though schema: null or schema: {} were provided.
-    methodUsingDefaultValidate.call((error, result) => {
+    // validate ignores unexpected arguments by default. schema does not. So, if ignored, we pass.
+    methodUsingDefaultValidate.call({ unexpectedArg: 'test' }, (error, result) => {
       assert.equal(result, 'result');
       done();
     });
   });
 
   it('allows validate in lieu of schema - only null validate present', function (done) {
-    // Note this is taking advantage of the fact that SimpleSchema will throw an
-    // exception if no object is supplied to validate to verify that SimpleSchema
-    // has been taken out of the picture. i.e. we're using call() instead of
-    // call({}). If either ValidateMethod or SimpleSchema fixes this issue, the
-    // test will still work but not really be testing anything. i.e. we might
-    // still be acting as though schema: null or schema: {} were provided.
-    methodUsingNullValidate.call((error, result) => {
+    // validate ignores unexpected arguments by default. schema does not. So, if ignored, we pass.
+    methodUsingNullValidate.call({ unexpectedArg: 'test' }, (error, result) => {
       assert.equal(result, 'result');
       done();
     });
@@ -280,13 +273,8 @@ describe('rlivingston:simple-schema-mixin', function () {
 
   it('allows validate in lieu of schema - validate present with null schema'
   , function (done) {
-    // Note this is taking advantage of the fact that SimpleSchema will throw an
-    // exception if no object is supplied to validate to verify that SimpleSchema
-    // has been taken out of the picture. i.e. we're using call() instead of
-    // call({}). If either ValidateMethod or SimpleSchema fixes this issue, the
-    // test will still work but not really be testing anything. i.e. we might
-    // still be acting as though schema: null or schema: {} were provided.
-    methodUsingDefaultValidateAndNullSchema.call((error, result) => {
+    // validate ignores unexpected arguments by default. schema does not. So, if ignored, we pass.
+    methodUsingDefaultValidateAndNullSchema.call({ unexpectedArg: 'test' }, (error, result) => {
       assert.equal(result, 'result');
       done();
     });
@@ -335,5 +323,13 @@ describe('rlivingston:simple-schema-mixin', function () {
       });
     // eslint-disable-next-line max-len
     }, /"schema" and "validate" options cannot be used together/);
+  });
+
+  it('schemaValidatorOptions overrides our defaults', function (done) {
+    methodWithSchemaAndFilterTrue.call({ unexpectedArg: 'test' }, (error, result) => {
+      // with filter set to true, the unexpectedArg will just be quietly thrown away.
+      assert.equal(result, 'result');
+      done();
+    });
   });
 });

@@ -8,9 +8,10 @@ simpleSchemaMixin = function SimpleSchemaMixinFunc(methodOptions) {
   // all the time, this could happen semi-"intentionally". There may be times they
   // just don't want to use a schema and have specified a "validate" option. So
   // returning the unchanged options instead of an error seems proper.
-  if ((!methodOptions.schema && methodOptions.validate)
-   || (methodOptions.schema && methodOptions.schema === null
-       && methodOptions.validate && methodOptions.validate !== null)) {
+  if ((typeof methodOptions.schema === 'undefined'
+      && typeof methodOptions.validate !== 'undefined')
+    || (typeof methodOptions.schema !== 'undefined' && methodOptions.schema === null
+      && typeof methodOptions.validate !== 'undefined' && methodOptions.validate !== null)) {
     return methodOptions;
   }
 
@@ -46,20 +47,4 @@ simpleSchemaMixin = function SimpleSchemaMixinFunc(methodOptions) {
   }
   newOptions.validate = simpleSchema.validator(newOptions.schemaValidatorOptions);
   return newOptions;
-};
-
-/* global SimplyValidatedMethod:true */
-/* global ValidatedMethod */
-/* global check */
-/* global _ */
-SimplyValidatedMethod = class SimplyValidatedMethod extends ValidatedMethod {
-  constructor(options) {
-    // eslint-disable-next-line no-param-reassign
-    options.mixins = options.mixins || [];
-    check(options.mixins, [Function]);
-    // eslint-disable-next-line no-param-reassign
-    options.mixins = _.union(options.mixins, [simpleSchemaMixin]);
-
-    super(options);
-  }
 };
