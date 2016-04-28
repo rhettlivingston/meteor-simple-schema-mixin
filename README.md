@@ -72,7 +72,12 @@ Meteor.Error will be thrown.
 const Schema = {};
 
 Schema.group = new SimpleSchema({
-  ...
+  // fyi, older versions of aldeed:SimpleSchema can have problems with the _id being
+  // defined in some contexts. The current 2.9.1 version has not given me any problems.
+  _id: {
+    type: String,
+    regEx: SimpleSchema.RegEx.Id,
+  },
   name: {
     type: String,
   },
@@ -98,10 +103,9 @@ Groups.attachSchema(Schema.group);
 // In the methods.js file
 
 const GROUP_ID_ONLY = new SimpleSchema({
-  groupId: {
-    type: String,
-    regEx: SimpleSchema.RegEx.Id,
-  },
+  // This is a nice technique to reuse the schema spec while renaming the key for the sake
+  // of greater clarity in the Method interface.
+  groupId: Groups.simpleSchema().schema(['_id']),
 });
 
 export const insert = new ValidatedMethod({
@@ -142,6 +146,8 @@ export const setIsAdmin = new ValidatedMethod({
   name: 'groups.setIsAdmin',
   mixins: [simpleSchemaMixin],
   // Note the use of both a SimpleSchema option and a directly specified schema in this example.
+  // I wanted to show this, though in my app I picked them from a subschema that defines the
+  // group members array elements.
   schema: [
     GROUP_ID_ONLY,
     {
