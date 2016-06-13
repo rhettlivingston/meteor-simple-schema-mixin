@@ -1,4 +1,5 @@
 # simple-schema-mixin
+[![Build Status](https://travis-ci.org/rhettlivingston/meteor-simple-schema-mixin.svg?branch=master)](https://travis-ci.org/rhettlivingston/meteor-simple-schema-mixin)
 
 *rlivingston:simple-schema-mixin*
 
