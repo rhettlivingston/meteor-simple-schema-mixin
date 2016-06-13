@@ -28,6 +28,7 @@ Package.onTest(function (api) {
     'rlivingston:simple-schema-mixin',
     'aldeed:simple-schema@1.5.2',
     'mdg:validated-method@1.1.0',
+    'practicalmeteor:mocha',
     'practicalmeteor:chai',
   ]);
   api.addFiles('simple-schema-mixin-tests.js');
