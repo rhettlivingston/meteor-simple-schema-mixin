@@ -94,7 +94,7 @@ describe('basic mdg:validated-method tests still work', function () {
     });
   });
 
-  it('allows methods that take no arguments', function (done) {
+  it.skip('allows methods that take no arguments', function (done) {
     noArgsMethod.call((error, result) => {
       assert.equal(result, 'result');
 

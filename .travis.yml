@@ -1,8 +1,24 @@
-sudo: required
+sudo: false
+
 language: node_js
 node_js:
-  - "0.8"
-  - "0.10"
+  - 0.10.43
+
+ache:
+  directories:
+    - $HOME/.meteor
+    - $HOME/.npm
+
+before_cache:
+  - rm -f $HOME/.meteor/log/*.log
 
 before_install:
-  - "curl -L http://git.io/ejPSng | /bin/sh"
+  # Download Meteor
+  - PATH=$PATH:$HOME/.meteor
+  - if [ ! -e $HOME/.meteor/meteor ]; then curl https://install.meteor.com | sh; fi
+
+  # Install spacejam
+  - npm install -g spacejam
+
+script:
+  - spacejam test-packages ./
