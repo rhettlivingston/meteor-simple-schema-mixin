@@ -102,7 +102,9 @@ Groups.attachSchema(Schema.group);
 
 
 // In the methods.js file
-
+import { ValidatedMethod } from 'meteor/mdg:validated-method';
+import { simpleSchemaMixin } from 'meteor/rlivingston:simple-schema-mixin';
+...
 const GROUP_ID_ONLY = new SimpleSchema({
   // This is a nice technique to reuse the schema spec while renaming the key for the sake
   // of greater clarity in the Method interface.
