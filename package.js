@@ -14,7 +14,7 @@ Package.onUse(function (api) {
     'ecmascript',
     // We need a min of 1.5.0 for "clean" to work. 1.5.2 also adds better err messages. Go for it.
     'aldeed:simple-schema@1.13.1',
-    'mdg:validated-method@1.1.0',
+    'mdg:validated-method@1.3.0',
     'check',
     'underscore',
   ]);
@@ -26,9 +26,9 @@ Package.onTest(function (api) {
   api.use([
     'ecmascript',
     'rlivingston:simple-schema-mixin',
-    'aldeed:simple-schema@1.5.2',
-    'mdg:validated-method@1.1.0',
-    'practicalmeteor:mocha',
+    'aldeed:simple-schema@1.13.1',
+    'mdg:validated-method@1.3.0',
+    'meteortesting:mocha',
     'practicalmeteor:chai',
   ]);
   api.addFiles('simple-schema-mixin-tests.js');

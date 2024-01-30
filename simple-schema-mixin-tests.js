@@ -94,22 +94,21 @@ describe('basic mdg:validated-method tests still work', function () {
     });
   });
 
-  it.skip('allows methods that take no arguments', function (done) {
-    noArgsMethod.call((error, result) => {
-      assert.equal(result, 'result');
-
-      Meteor.call(noArgsMethod.name, (error2, result2) => {
-        assert.equal(result2, 'result');
-        done();
-      });
-    });
-  });
+  // it('allows methods that take no arguments', function (done) {
+  //   noArgsMethod.call((error, result) => {
+  //     assert.equal(result, 'result');
+  //     Meteor.call(noArgsMethod.name, (error2, result2) => {
+  //       assert.equal(result2, 'result');
+  //       done();
+  //     });
+  //   });
+  // });
 
   [methodWithArgs, methodWithSchemaMixin].forEach((method) => {
     it(`checks schema ${method.name}`, function (done) {
       method.call({}, (error) => {
         // 2 invalid fields
-        assert.equal(error.errors.length, 2);
+        assert.equal(error.details.length, 2);
 
         method.call({
           int: 5,
